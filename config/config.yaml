@@ -1,0 +1,57 @@
+# ===============================
+# Global Pipeline Configuration
+# ===============================
+
+python: "3.10"
+random_seed: 42
+
+# -------------------------------
+# DATA CONFIGURATION
+# -------------------------------
+data:
+  # Always use the full dataset (assignment does NOT require sample data)
+  use_sample_data: false
+
+  # Path for the full dataset (your synthetic CSV)
+  full_path: "data/full/full_dataset.csv"
+
+  # Minimum impressions required to include an ad in analysis
+  min_impressions: 1000
+
+# -------------------------------
+# METRIC THRESHOLDS
+# -------------------------------
+thresholds:
+  roas_drop_pct: 0.20   # Investigate if ROAS falls by 20%
+  low_ctr: 0.01         # Treat CTR < 1% as underperforming
+  comparison_window_days: 7
+
+# -------------------------------
+# LLM MODEL CONFIGURATION
+# -------------------------------
+llm:
+  provider: "openai"
+  model: "gpt-4.1"
+  temperature: 0.2
+  max_tokens: 1500
+
+# -------------------------------
+# LOGGING & OBSERVABILITY
+# -------------------------------
+logging:
+  save_json_logs: true
+  logs_dir: "logs"
+  log_level: "INFO"
+
+# -------------------------------
+# REPORT GENERATION
+# -------------------------------
+reports:
+  output_dir: "reports"
+
+# -------------------------------
+# PIPELINE SETTINGS
+# -------------------------------
+pipeline:
+  enable_creative_generation: true
+  enable_llm_evaluator: true
