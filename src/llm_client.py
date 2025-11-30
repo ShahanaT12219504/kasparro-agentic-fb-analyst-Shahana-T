@@ -1,24 +1,29 @@
-
-import openai
-
 class LLMClient:
     """
-    Tiny wrapper around OpenAI so the rest of the code stays clean.
-    If you ever switch to Anthropic or Gemini, only this file changes.
+    Dummy LLM client used for offline mode.
+    This version does NOT call any API (OpenAI, Gemini, etc.).
+    
+    It simply returns realistic placeholder responses so the rest of the
+    agent pipeline works smoothly without internet or payment.
     """
 
-    def __init__(self, model="gpt-4.1"):
+    def __init__(self, model="offline-dummy"):
         self.model = model
 
     def generate(self, prompt: str, temperature: float = 0.2):
         """
-        Sends a prompt to the OpenAI Chat Completion API and returns text output.
+        Returns a mock response for any given prompt.
+        This keeps the architecture intact without requiring an actual API key.
         """
 
-        completion = openai.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=temperature
-        )
+        # You can customize this if you want more variety
+        mock_responses = [
+            "Based on the data, performance dropped mainly due to low CTR and weak audience targeting.",
+            "Insight: Certain creatives underperformed due to ad fatigue and poor click-through engagement.",
+            "Recommendation: Refresh visuals and test new audience segments to improve performance.",
+            "The ads performed well overall but showed inconsistencies across device types."
+        ]
 
-        return completion.choices[0].message["content"]
+        # Pick one response (simple deterministic selection)
+        index = abs(hash(prompt)) % len(mock_responses)
+        return mock_responses[index]

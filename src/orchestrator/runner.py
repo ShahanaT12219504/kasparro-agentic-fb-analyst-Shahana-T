@@ -10,18 +10,16 @@ from src.utils.logging_utils import write_json_log
 
 class Orchestrator:
     """
-    The Orchestrator coordinates the entire pipeline step-by-step.
-    It decides which agent runs when, based on the Planner's plan.
-    
-    This keeps everything clean, maintainable, and modular.
+    Offline-safe Orchestrator.
+    Supports two types of planner outputs:
+    1. dict steps → {"agent": "...", "action": "..."}   (real LLM mode)
+    2. string steps → "load_data", "generate_insights"  (offline dummy LLM mode)
     """
 
     def __init__(self, llm_client):
-        # Load config once; used across all agents.
         self.config = load_config()
         self.llm_client = llm_client
 
-        # Initialize all agents.
         self.planner = PlannerAgent(llm_client)
         self.data_agent = DataAgent(self.config)
         self.insight_agent = InsightAgent(llm_client)
@@ -29,22 +27,13 @@ class Orchestrator:
         self.creative_gen = CreativeGenerator(llm_client, self.config)
 
     def run(self, user_query: str):
-        """
-        Runs the entire agentic pipeline in the correct order.
-
-        Output:
-        - data summary
-        - hypotheses
-        - evaluated insights
-        - creative recommendations
-        """
 
         write_json_log("pipeline_started", {"query": user_query})
 
-        # Step 1 — Planner decides execution steps
+        # Step 1: Planner output
         plan = self.planner.plan(user_query)
 
-        # Step 2 — Load dataset (filtered to 7 days)
+        # Step 2: Load dataset
         df = load_dataset(self.config)
         df = filter_last_n_days(df, 7)
 
@@ -53,9 +42,44 @@ class Orchestrator:
         evaluated = None
         creatives = None
 
-        # Step 3 — Execute plan step-by-step
+        # Step 3: Execute steps
         for step in plan["steps"]:
-            agent = step["agent"]
+
+            # ==========================
+            # OFFLINE MODE (string steps)
+            # ==========================
+            if isinstance(step, str):
+
+                if step == "load_data":
+                    data_summary = self.data_agent.load_and_prepare()
+
+                elif step == "analyze_metrics":
+                    # Some pipelines merge analysis into load; safe fallback
+                    if data_summary is not None:
+                        data_summary = data_summary
+                    else:
+                        data_summary = self.data_agent.load_and_prepare()
+
+                elif step == "generate_insights":
+                    insights = self.insight_agent.generate_hypotheses(
+                        data_summary.get("summary", {}),
+                        user_query
+                    )
+
+                elif step == "evaluate_insights":
+                    evaluated = self.evaluator.evaluate(df, insights)
+
+                elif step == "produce_creatives":
+                    creatives = self.creative_gen.generate(df)
+
+                # Continue to next step
+                continue
+
+            # ==========================
+            # NORMAL MODE (dict steps)
+            # ==========================
+            agent = step.get("agent", "")
+            action = step.get("action", "")
 
             if agent == "data_agent":
                 data_summary = self.data_agent.load_and_prepare()

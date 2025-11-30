@@ -1,0 +1,38 @@
+# Facebook Ads Performance Report
+
+## ✓ Validated Insights
+```
+[
+  {
+    "hypothesis": {
+      "issue": "Low CTR",
+      "reason": "Creative fatigue"
+    },
+    "validity": "valid",
+    "confidence": 0.78
+  },
+  {
+    "hypothesis": {
+      "issue": "ROAS Drop",
+      "reason": "Weak targeting"
+    },
+    "validity": "valid",
+    "confidence": 0.78
+  }
+]
+```
+
+## ✓ Creative Recommendations
+```
+[
+  {
+    "idea": "Use a bold headline highlighting discount"
+  },
+  {
+    "idea": "Try bright background colors"
+  },
+  {
+    "idea": "Add social proof testimonials"
+  }
+]
+```
