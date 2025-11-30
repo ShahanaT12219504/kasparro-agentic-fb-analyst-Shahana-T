@@ -1,8 +1,4 @@
 # 📌 **Kasparro – Agentic FB Analyst Assignment**  
-### **Author:** Shahana T  
-### **Repository:** kasparro-agentic-fb-analyst-Shahana-T  
-
----
 
 ## 🚀 **Overview**
 This repository contains my submission for the **Kasparro Applied AI Engineer – Agentic FB Analyst Assignment**.
